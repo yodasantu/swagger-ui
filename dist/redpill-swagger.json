@@ -1,0 +1,316 @@
+{
+    "basePath": "/v1",
+    "produces": [
+        "application/json"
+    ],
+    "swagger": "2.0",
+    "definitions": {
+        "FeatureResult": {
+            "type": "object",
+            "properties": {
+                "created_on": {
+                    "type": "string",
+                    "description": "Date time of this image processing"
+                },
+                "model": {
+                    "type": "string",
+                    "description": "Model name choosed by user for process this image"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Version of redpill API"
+                },
+                "uuid": {
+                    "type": "string",
+                    "description": "Unique identifier for the image"
+                },
+                "tagging": {
+                    "$ref": "#/definitions/Tagging"
+                },
+                "aesthetic": {
+                    "$ref": "#/definitions/Aesthetic"
+                },
+                "search": {
+                    "$ref": "#/definitions/Search"
+                },
+                "feature": {
+                    "$ref": "#/definitions/Feature"
+                }
+            }
+        },
+        "Tagging": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The \"confidence\" value is of the corresponding keyword."
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The keyword extracted from the image."
+                }
+            }
+        },
+        "Search": {
+            "type": "object",
+            "properties": {
+                "pq_code": {
+                    "type": "string",
+                    "description": "The \"pq_code\" value is base-64 encoded."
+                },
+                "buckets": {
+                    "$ref": "#/definitions/Buckets"
+                }
+            }
+        },
+        "Health": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "description": "Version of this redpill."
+                },
+                "healthy": {
+                    "type": "string",
+                    "description": "Boolean string to define if the redpill is works fine."
+                }
+            }
+        },
+        "Model": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Unique identifier representing a specific product for a given latitude & longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles"
+                },
+                "analyzers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Analyzer"
+                    }
+                },
+                "version": {
+                    "type": "string",
+                    "description": "[ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code."
+                }
+            }
+        },
+        "Aesthetic": {
+            "type": "object",
+            "properties": {
+                "motion_blur": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "balancing_element": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "interesting_lighting": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "repetition": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "depth_of_field": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "color_harmony": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "quality": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "object_emphasis": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "vivid_color": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "symmetry": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "interesting_content": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "rule_of_thirds": {
+                    "type": "number",
+                    "format": "double"
+                }
+            }
+        },
+        "Analyzer": {
+            "type": "string",
+            "description": "Analyzer name included in this redpill model, for example \"feature\", \"search\", \"tagging\" or \"aesthetic\"."
+        },
+        "Feature": {
+            "type": "object",
+            "properties": {
+                "descriptor": {
+                    "type": "string",
+                    "description": "The \"descriptor\" value is gzip compressed and base-64 encoded. The \"created_on\" value indicates the time this record was created in UTC."
+                }
+            }
+        },
+        "Buckets": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The \"buckets.ids\" value is an array of bucket ids starting with the bucket id. Of this asset. The array is ordered from the nearest bucket to the furthest bucket."
+                },
+                "similarity": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The \"buckets.similarity\" value is an array of similarities of the corresponding buckets in the \"ids\" array. Note that the similarity of the first bucket does not necessarily have a value of 1.0; typically it will be less that 1.0, as in this example."
+                }
+            }
+        }
+    },
+    "host": "content-analyzer-stg.adobe.io",
+    "info": {
+        "title": "Redpill API",
+        "description": "This application runs an image analysis service",
+        "version": "2.0-dev"
+    },
+    "schemes": [
+        "https"
+    ],
+    "paths": {
+        "/features/{model}/images/{uuid}": {
+            "post": {
+                "tags": [
+                    "Features"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A block of features estimates by redpill",
+                        "schema": {
+                            "type": "object",
+                            "items": {
+                                "$ref": "#/definitions/FeatureResult"
+                            }
+                        }
+                    }
+                },
+                "summary": "Request features for an image",
+                "description": "This api may be used to analyze image features.\nThe {model} path parameter selects the processing model.\nUse the models api for find out what models are supported by the server.\nThe {uuid} path parameter is a string that is returned in the reponse\nas the value of key \"uuid\" but is otherwise uninterpreted by the service.\nClients may use it identify the image, for example.\n",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "type": "string",
+                        "name": "model",
+                        "description": "Model name selected to process image.",
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "type": "string",
+                        "name": "uuid",
+                        "description": "The id for the image submitted.",
+                        "required": true
+                    },
+                    {
+                        "in": "formData",
+                        "type": "string",
+                        "name": "url",
+                        "description": "The url of the image to be processed. http, https, and s3 schemes are supported. It's required if the image parameter is not present in the request."
+                    },
+                    {
+                        "in": "formData",
+                        "type": "string",
+                        "name": "image",
+                        "description": "The image data. A wide variety of formats and color spaces are supported. It's required if the url parameter is not present in the request."
+                    },
+                    {
+                        "in": "formData",
+                        "type": "string",
+                        "name": "analyzers",
+                        "description": "Selects the analyzers to be applied to the image. Analyzers will be concatenated as a comma-separated string. Please note that different models support different analyzers. Use the models api to find out what analyzers are supported by a model. A value of \"all\" selects all the analyzers supported by the model"
+                    },
+                    {
+                        "in": "formData",
+                        "type": "integer",
+                        "name": "search.num_buckets",
+                        "description": "Specifies the number of buckets the search analyzer will return in the response. Default is 20. Minimum is 1.",
+                        "format": "int32"
+                    },
+                    {
+                        "in": "formData",
+                        "type": "integer",
+                        "name": "tagging.num_tags",
+                        "description": "Specifies the number of tags the tagging analyzer will return in the response. Default is 25. Minimum is 1.",
+                        "format": "int32"
+                    },
+                    {
+                        "in": "formData",
+                        "type": "number",
+                        "name": "tagging.threshold",
+                        "description": "Specifies the minimum confidence value the tagging analyzer will return in the response. Note that a high value may result in no tags being returned in the response. Default is 0.0. Minimum is 0.0.",
+                        "format": "double"
+                    }
+                ]
+            }
+        },
+        "/models": {
+            "get": {
+                "tags": [
+                    "Models"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of models",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Model"
+                            }
+                        }
+                    }
+                },
+                "summary": "Redpill Models",
+                "description": "The api may be used to get information about the processing models available to the server.\n"
+            }
+        },
+        "/health": {
+            "get": {
+                "tags": [
+                    "Health Check"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Health information of this server",
+                        "schema": {
+                            "type": "object",
+                            "items": {
+                                "$ref": "#/definitions/Health"
+                            }
+                        }
+                    }
+                },
+                "summary": "Health Check",
+                "description": "This api may be used to verify that the server is running and responding to requests.\n"
+            }
+        }
+    }
+}
