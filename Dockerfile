@@ -7,6 +7,6 @@ RUN apk add --update nginx
 COPY nginx.conf /etc/nginx/
 ADD ./dist/ /usr/share/nginx/html
 
-EXPOSE 8080
+EXPOSE 8080 8090
 
 CMD nginx -g 'daemon off;'
