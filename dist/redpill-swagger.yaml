@@ -6,7 +6,7 @@ info:
   description: This application runs an image analysis service
   version: "2.0-dev"
 # the domain of the service
-host: content-analyzer-stg.adobe.io
+host: redpill-elb.prod-be-aws.net
 # array of all schemes that your API supports
 schemes:
   - https
